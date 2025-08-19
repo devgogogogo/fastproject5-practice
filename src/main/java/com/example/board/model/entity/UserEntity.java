@@ -21,7 +21,10 @@ import java.util.Random;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE \"user\" SET deletedDateTime = CURRENT_TIMESTAMP WHERE userId = ?")
 @SQLRestriction("deleteddatetime IS NULL")
-@Table(name = "\"user\"")  //PostgreSQL 내부에서 유저라는 이름이 이미 사용되고 있는 예약어이다. --> 그래서 \" \"를 붙여주어야 한다.
+@Table(
+        name = "\"user\""
+        , indexes = {@Index(name = "user_username_idx", columnList = "username",unique = true)})
+//PostgreSQL 내부에서 유저라는 이름이 이미 사용되고 있는 예약어이다. --> 그래서 \" \"를 붙여주어야 한다.
 public class UserEntity implements UserDetails {
 
     @Id
@@ -144,7 +147,7 @@ public class UserEntity implements UserDetails {
 
         // Set random profile image url
         //램덤한 프로필 사진 설정(1 ~ 100)
-        userEntity.setProfile("https://avatar.iran.liara.run/public/" + (new Random().nextInt(100)) +1);
+        userEntity.setProfile("https://avatar.iran.liara.run/public/" + (new Random().nextInt(100)) + 1);
 
         //위 API 가 정상적으로 동작하지 않을 경우, 이것을 사용해주세요.
 //        userEntity.setProfile("https://dev-jayce.github.io/public/profile" + (new Random().nextInt(100))+1 + "png");

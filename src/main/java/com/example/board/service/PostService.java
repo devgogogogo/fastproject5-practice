@@ -1,6 +1,8 @@
 package com.example.board.service;
 
 import com.example.board.exception.post.PostNotFoundException;
+import com.example.board.exception.user.UserNotAllowedException;
+import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
@@ -30,23 +32,30 @@ public class PostService {
         return Post.from(postEntity);
     }
 
-    public Post createPost(PostPostRequestBody postPostRequestBody) {
-        PostEntity postEntity = new PostEntity();
-        postEntity.setBody(postPostRequestBody.body());
+    public Post createPost(PostPostRequestBody postPostRequestBody, UserEntity currentUser) {
+        PostEntity postEntity = PostEntity.of(postPostRequestBody.body(), currentUser);
         PostEntity savedPostEntity = postEntityRepository.save(postEntity);
         return Post.from(savedPostEntity);
     }
 
-    public Post updatePost(Long postId, PostPatchRequestBody postPatchRequestBody) {
+    public Post updatePost(Long postId, PostPatchRequestBody postPatchRequestBody,UserEntity currentUser) {
         PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
+
+        if (!postEntity.getUser().equals(currentUser)) {
+            throw new UserNotAllowedException();
+        }
+
 
         postEntity.setBody(postPatchRequestBody.body());
         PostEntity updatedPostEntity = postEntityRepository.save(postEntity);
         return Post.from(updatedPostEntity);
     }
 
-    public void deletePost(Long postId) {
+    public void deletePost(Long postId,UserEntity currentUser) {
         PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
+        if (!postEntity.getUser().equals(currentUser)) {
+            throw new UserNotAllowedException();
+        }
         postEntityRepository.delete(postEntity);
     }
 }

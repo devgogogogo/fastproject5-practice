@@ -3,6 +3,7 @@ package com.example.board.model.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -24,10 +25,14 @@ import java.util.Objects;
  */
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE postid = ?")
 @SQLRestriction("deleteddatetime IS NULL")
-@Table(name = "post")
+@Table(
+        name = "post",
+        indexes = {@Index(name = "post_userid_idx",columnList = "userid")})
+//DB 성능을 개선하기 위해 인덱스를 사용함
 public class PostEntity {
 
     @Id
@@ -36,6 +41,10 @@ public class PostEntity {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String body;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid")
+    private UserEntity user;
 
     @Column
     private ZonedDateTime createdDateTime;
@@ -46,31 +55,22 @@ public class PostEntity {
     @Column
     private ZonedDateTime deletedDateTime;
 
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setCreatedDateTime(ZonedDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
-    }
-
-    public void setUpdatedDateTime(ZonedDateTime updatedDateTime) {
-        this.updatedDateTime = updatedDateTime;
-    }
-
-    public void setDeletedDateTime(ZonedDateTime deletedDateTime) {
-        this.deletedDateTime = deletedDateTime;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof PostEntity that)) return false;
-        return Objects.equals(postId, that.postId) && Objects.equals(body, that.body) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
+        return Objects.equals(postId, that.postId) && Objects.equals(body, that.body) && Objects.equals(user, that.user) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(postId, body, createdDateTime, updatedDateTime, deletedDateTime);
+        return Objects.hash(postId, body, user, createdDateTime, updatedDateTime, deletedDateTime);
+    }
+
+    public static PostEntity of(String body, UserEntity userEntity) {
+        PostEntity post = new PostEntity();
+        post.setBody(body);
+        post.setUser(userEntity);
+        return post;
     }
 
     @PrePersist
