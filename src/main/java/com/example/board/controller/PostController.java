@@ -1,8 +1,8 @@
 package com.example.board.controller;
 
-import com.example.board.model.Post;
-import com.example.board.model.PostPatchRequestBody;
-import com.example.board.model.PostPostRequestBody;
+import com.example.board.model.post.Post;
+import com.example.board.model.post.PostPatchRequestBody;
+import com.example.board.model.post.PostPostRequestBody;
 import com.example.board.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

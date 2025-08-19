@@ -1,9 +1,8 @@
 package com.example.board.model.user;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 
-public record UserSignUpRequestBody(
+public record UserLoginRequestBody(
 
         @NotEmpty
         String username,

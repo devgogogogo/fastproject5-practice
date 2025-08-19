@@ -1,4 +1,4 @@
-package com.example.board.model;
+package com.example.board.model.post;
 
 import com.example.board.model.entity.PostEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;

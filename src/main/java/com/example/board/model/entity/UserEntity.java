@@ -28,10 +28,10 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column()
+    @Column(nullable = false)
     private String username;
 
-    @Column()
+    @Column(nullable = false)
     private String password;
 
     @Column
@@ -144,10 +144,10 @@ public class UserEntity implements UserDetails {
 
         // Set random profile image url
         //램덤한 프로필 사진 설정(1 ~ 100)
-        userEntity.setProfile("https://avatar.iran.liara.run/public/" + new Random().nextInt(100));
+        userEntity.setProfile("https://avatar.iran.liara.run/public/" + (new Random().nextInt(100)) +1);
 
         //위 API 가 정상적으로 동작하지 않을 경우, 이것을 사용해주세요.
-//        userEntity.setProfile("https://dev-jayce.github.io/public/profile" + new Random().nextInt(100));
+//        userEntity.setProfile("https://dev-jayce.github.io/public/profile" + (new Random().nextInt(100))+1 + "png");
 
         return userEntity;
     }

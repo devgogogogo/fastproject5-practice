@@ -4,8 +4,10 @@ import com.example.board.exception.user.UserAlreadyExistsException;
 import com.example.board.exception.user.UserNotFoundException;
 import com.example.board.model.entity.UserEntity;
 import com.example.board.model.user.User;
+import com.example.board.model.user.UserAuthenticationResponse;
 import com.example.board.model.user.UserSignUpRequestBody;
 import com.example.board.repository.UserEntityRepository;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +23,7 @@ public class UserService implements UserDetailsService {
 
     private final UserEntityRepository userEntityRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -41,5 +44,16 @@ public class UserService implements UserDetailsService {
         UserEntity savedUserEntity = userEntityRepository.save(userEntity);
 
         return User.from(savedUserEntity);
+    }
+
+    public UserAuthenticationResponse authenticate( String username, String password) {
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username)); //아이디로 유저 엔티티를 찾는다.
+
+        if (passwordEncoder.matches(password, userEntity.getPassword())) {
+            String accessToken = jwtService.generateAccessToken(userEntity);
+            return new UserAuthenticationResponse(accessToken);
+        } else {
+            throw new UserNotFoundException();
+        }
     }
 }
