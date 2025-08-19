@@ -1,4 +1,4 @@
 package com.example.board.model.user;
 
-public record UserPostRequestBody() {
+public record UserSignUpRequestBody(String username, String password) {
 }

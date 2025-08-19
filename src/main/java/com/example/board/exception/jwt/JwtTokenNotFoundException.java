@@ -1,4 +1,11 @@
 package com.example.board.exception.jwt;
 
-public class JwtTokenNotFoundException {
+import io.jsonwebtoken.JwtException;
+
+public class JwtTokenNotFoundException extends JwtException {
+
+
+    public JwtTokenNotFoundException() {
+        super("JWT not found");
+    }
 }

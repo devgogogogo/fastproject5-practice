@@ -1,4 +1,5 @@
 package com.example.board.model;
 
-public record PostPatchRequestBody() {
+public record PostPatchRequestBody(String body) {
+
 }
