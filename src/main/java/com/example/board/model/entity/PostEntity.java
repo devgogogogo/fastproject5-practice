@@ -44,6 +44,9 @@ public class PostEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String body;
 
+    @Column
+    private Long repliesCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userid")
     private UserEntity user;
@@ -60,12 +63,12 @@ public class PostEntity {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof PostEntity that)) return false;
-        return Objects.equals(postId, that.postId) && Objects.equals(body, that.body) && Objects.equals(user, that.user) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
+        return Objects.equals(postId, that.postId) && Objects.equals(body, that.body) && Objects.equals(repliesCount, that.repliesCount) && Objects.equals(user, that.user) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(postId, body, user, createdDateTime, updatedDateTime, deletedDateTime);
+        return Objects.hash(postId, body, repliesCount, user, createdDateTime, updatedDateTime, deletedDateTime);
     }
 
     public static PostEntity of(String body, UserEntity userEntity) {

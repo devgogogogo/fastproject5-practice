@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 public record Post(
         Long postId,
         String body,
+        Long repliesCount,
         User user,
         ZonedDateTime createdDateTime,
         ZonedDateTime updatedDateTime,
@@ -21,7 +22,8 @@ public record Post(
         return new Post(
                 postEntity.getPostId(),
                 postEntity.getBody(),
-                User.from(postEntity.getUser()),
+                postEntity.getRepliesCount(),
+                com.example.board.model.user.User.from(postEntity.getUser()),
                 postEntity.getCreatedDateTime(),
                 postEntity.getUpdatedDateTime(),
                 postEntity.getDeletedDateTime()

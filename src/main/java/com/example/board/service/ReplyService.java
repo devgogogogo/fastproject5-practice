@@ -15,6 +15,7 @@ import com.example.board.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ReplyService {
     }
 
 
+    @Transactional
     public Reply createReply(Long postId, ReplyRequestBody replyPostRequestBody, UserEntity currentUser) {
 
         PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
@@ -53,6 +55,8 @@ public class ReplyService {
         ReplyEntity savedReply = replyEntityRepository.save(replyEntity);
 
         Reply reply = Reply.from(savedReply);
+        postEntity.setRepliesCount(postEntity.getRepliesCount() + 1);
+
 
         return reply;
     }
@@ -73,13 +77,26 @@ public class ReplyService {
         return reply;
     }
 
+    @Transactional
     public void deleteReply(Long postId, Long replyId, UserEntity currentUser) {
-
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
         ReplyEntity replyEntity = replyEntityRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException(replyId));
 
         if (!replyEntity.getUser().equals(currentUser)) {
             throw new UserNotAllowedException();
         }
         replyEntityRepository.delete(replyEntity);
+
+        postEntity.setRepliesCount(Math.max(0, postEntity.getRepliesCount() - 1));  //댓글 개수 감소 시키고
+        postEntityRepository.save(postEntity); //포스트DB에 저장해야함.
+
+        //여기서는 postEntityRepository.save(postEntity) 를 안 해주고 끝났죠.
+        //그런데도 실제로 DB에 반영됩니다.
+        //왜냐면:
+        //postEntity는 postEntityRepository.findById(...) 로 가져온 엔티티 → 이미 영속 상태(persistent state).
+        //메서드 전체가 @Transactional 안에서 실행되고 있으니까,
+        //트랜잭션이 끝날 때 JPA가 변경 감지(dirty checking) 를 해서
+        //replies_count 값이 바뀌었으면 자동으로 UPDATE 쿼리를 날려줍니다.
+        //즉, save() 안 해도 JPA가 알아서 반영해줘요.
     }
 }

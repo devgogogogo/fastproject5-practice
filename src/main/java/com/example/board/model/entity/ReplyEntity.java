@@ -31,7 +31,9 @@ import java.util.Objects;
 @SQLRestriction("deleteddatetime IS NULL")
 @Table(
         name = "reply",
-        indexes = {@Index(name = "post_userid_idx",columnList = "userid")})
+        indexes = {@Index(name = "reply_userid_idx",columnList = "userid"),
+                @Index(name = "reply_postid_idx",columnList = "postid")}
+)
 //DB 성능을 개선하기 위해 인덱스를 사용함
 public class ReplyEntity {
 
