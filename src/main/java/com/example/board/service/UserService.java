@@ -1,10 +1,12 @@
 package com.example.board.service;
 
 import com.example.board.exception.user.UserAlreadyExistsException;
+import com.example.board.exception.user.UserNotAllowedException;
 import com.example.board.exception.user.UserNotFoundException;
 import com.example.board.model.entity.UserEntity;
 import com.example.board.model.user.User;
 import com.example.board.model.user.UserAuthenticationResponse;
+import com.example.board.model.user.UserPatchRequestBody;
 import com.example.board.model.user.UserSignUpRequestBody;
 import com.example.board.repository.UserEntityRepository;
 import jakarta.validation.constraints.NotEmpty;
@@ -74,5 +76,18 @@ public class UserService implements UserDetailsService {
         UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
 
         return User.from(userEntity);
+    }
+
+    public User updateUser(String username, UserPatchRequestBody userPatchRequestBody, UserEntity currentUser) {
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+
+        if (!userEntity.equals(currentUser)) {
+            throw new UserNotAllowedException();
+        }
+        if (userPatchRequestBody.description() != null) {
+            userEntity.setDescription(userPatchRequestBody.description());
+        }
+        UserEntity saved = userEntityRepository.save(userEntity);
+        return User.from(saved);
     }
 }

@@ -2,12 +2,14 @@ package com.example.board.service;
 
 import com.example.board.exception.post.PostNotFoundException;
 import com.example.board.exception.user.UserNotAllowedException;
+import com.example.board.exception.user.UserNotFoundException;
 import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
 import com.example.board.model.entity.PostEntity;
 import com.example.board.repository.PostEntityRepository;
+import com.example.board.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.util.List;
 public class PostService {
 
     private final PostEntityRepository postEntityRepository;
+    private final UserEntityRepository userEntityRepository;
 
 
     public List<Post> getPosts() {
@@ -57,5 +60,14 @@ public class PostService {
             throw new UserNotAllowedException();
         }
         postEntityRepository.delete(postEntity);
+    }
+
+    public List<Post> getPostByUsername(String username) {
+
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+
+        List<PostEntity> postEntities = postEntityRepository.findByUser(userEntity);
+        List<Post> list = postEntities.stream().map(Post::from).toList();
+        return list;
     }
 }

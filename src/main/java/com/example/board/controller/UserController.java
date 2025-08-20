@@ -1,14 +1,15 @@
 package com.example.board.controller;
 
-import com.example.board.model.user.User;
-import com.example.board.model.user.UserAuthenticationResponse;
-import com.example.board.model.user.UserLoginRequestBody;
-import com.example.board.model.user.UserSignUpRequestBody;
+import com.example.board.model.entity.UserEntity;
+import com.example.board.model.post.Post;
+import com.example.board.model.user.*;
+import com.example.board.service.PostService;
 import com.example.board.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,30 +18,49 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
-/*
-    @PathVariable
-     - URL 경로의 일부를 변수로 받아옵니다.
-     - 보통 "특정 리소스 하나"를 지정할 때 사용해요.
+    /*
+        @PathVariable
+         - URL 경로의 일부를 변수로 받아옵니다.
+         - 보통 "특정 리소스 하나"를 지정할 때 사용해요.
 
-    @RequestParam
-     - ?key=value 형식의 쿼리 파라미터를 가져옵니다.
-     - 보통 검색, 필터링, 페이징 같은 옵션 값에 많이 쓰여요.
- */
+        @RequestParam
+         - ?key=value 형식의 쿼리 파라미터를 가져옵니다.
+         - 보통 검색, 필터링, 페이징 같은 옵션 값에 많이 쓰여요.
+     */
     private final UserService userService;
+    private final PostService postService;
 
-    @GetMapping
+    //유저 전체조회
+    @GetMapping()
     public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query) {
         List<User> userList = userService.getUsers(query);
         return ResponseEntity.ok(userList);
     }
 
+    //유저 단건조회
     @GetMapping("/{username}")
     public ResponseEntity<User> getUser(@PathVariable String username) {
         User user = userService.getUser(username);
         return ResponseEntity.ok(user);
     }
 
+    //특정유저의 게시물
+    @GetMapping("/{username}/posts")
+    public ResponseEntity<List<Post>> getPostByUsername(@PathVariable String username) {
+        List<Post> posts = postService.getPostByUsername(username);
+        return ResponseEntity.ok(posts);
+    }
 
+    @PatchMapping("/{username}") //회원 수정
+    public ResponseEntity<User> getUser(
+            @PathVariable String username,
+            @RequestBody UserPatchRequestBody requestBody,
+            Authentication authentication) {
+        User user = userService.updateUser(username,requestBody,(UserEntity)authentication.getPrincipal());
+        return ResponseEntity.ok(user);
+    }
+
+    //회원가입
     @PostMapping
     public ResponseEntity<User> signUp(@Valid @RequestBody UserSignUpRequestBody requestBody) {
         User user = userService.signUp(requestBody.username(), requestBody.password());
@@ -49,6 +69,7 @@ public class UserController {
 
     }
 
+    //로그인
     @PostMapping("/authenticate")  //로그인을 통해 토큰을 발행하는 컨트롤
     public ResponseEntity<UserAuthenticationResponse> authenticate(@Valid @RequestBody UserLoginRequestBody userLoginRequestBody) {
         UserAuthenticationResponse response = userService.authenticate(userLoginRequestBody.username(), userLoginRequestBody.password());
