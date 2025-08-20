@@ -7,9 +7,7 @@ import com.example.board.model.entity.UserEntity;
 import com.example.board.model.user.User;
 import com.example.board.model.user.UserAuthenticationResponse;
 import com.example.board.model.user.UserPatchRequestBody;
-import com.example.board.model.user.UserSignUpRequestBody;
 import com.example.board.repository.UserEntityRepository;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

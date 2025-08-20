@@ -36,7 +36,7 @@ public class PostService {
     }
 
     public Post createPost(PostPostRequestBody postPostRequestBody, UserEntity currentUser) {
-        PostEntity postEntity = PostEntity.of(postPostRequestBody.body(), currentUser);
+        PostEntity postEntity = PostEntity. of(postPostRequestBody.body(), currentUser);
         PostEntity savedPostEntity = postEntityRepository.save(postEntity);
         return Post.from(savedPostEntity);
     }

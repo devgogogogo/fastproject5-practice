@@ -27,26 +27,20 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE postid = ?")
+@SQLDelete(sql = "UPDATE \"reply\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE replyid = ?")
 @SQLRestriction("deleteddatetime IS NULL")
 @Table(
-        name = "post",
+        name = "reply",
         indexes = {@Index(name = "post_userid_idx",columnList = "userid")})
-//post_userid_idx → 그냥 인덱스 이름 (네가 커스텀 가능)
-//userid → DB 실제 컬럼명 (정확히 적어야 함)
 //DB 성능을 개선하기 위해 인덱스를 사용함
-public class PostEntity {
+public class ReplyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postId;
+    private Long replyId;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String body;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userid")
-    private UserEntity user;
 
     @Column
     private ZonedDateTime createdDateTime;
@@ -57,22 +51,31 @@ public class PostEntity {
     @Column
     private ZonedDateTime deletedDateTime;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid")
+    private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "postid")
+    private PostEntity post;
+
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof PostEntity that)) return false;
-        return Objects.equals(postId, that.postId) && Objects.equals(body, that.body) && Objects.equals(user, that.user) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
+        if (!(o instanceof ReplyEntity that)) return false;
+        return Objects.equals(replyId, that.replyId) && Objects.equals(body, that.body) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime) && Objects.equals(user, that.user) && Objects.equals(post, that.post);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(postId, body, user, createdDateTime, updatedDateTime, deletedDateTime);
+        return Objects.hash(replyId, body, createdDateTime, updatedDateTime, deletedDateTime, user, post);
     }
 
-    public static PostEntity of(String body, UserEntity userEntity) {
-        PostEntity post = new PostEntity();
-        post.setBody(body);
-        post.setUser(userEntity);
-        return post;
+    public static ReplyEntity of(String body, UserEntity user,PostEntity post) {
+        ReplyEntity reply = new ReplyEntity();
+        reply.setBody(body);
+        reply.setUser(user);
+        reply.setPost(post);
+        return reply;
     }
 
     @PrePersist
