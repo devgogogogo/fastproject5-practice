@@ -1,0 +1,15 @@
+package com.example.board.exception.follow;
+
+import com.example.board.exception.ClientErrorException;
+import org.springframework.http.HttpStatus;
+
+public class InvalidFollowException extends ClientErrorException {
+
+    public InvalidFollowException() {
+        super(HttpStatus.BAD_REQUEST, "invalid follow request.");
+    }
+
+    public InvalidFollowException(String message) {
+        super(HttpStatus.NOT_FOUND, message);
+    }
+}

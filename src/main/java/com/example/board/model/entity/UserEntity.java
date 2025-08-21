@@ -18,6 +18,7 @@ import java.util.Random;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE \"user\" SET deletedDateTime = CURRENT_TIMESTAMP WHERE userId = ?")
 @SQLRestriction("deleteddatetime IS NULL")
@@ -43,6 +44,12 @@ public class UserEntity implements UserDetails {
     @Column()
     private String description;
 
+    @Column
+    private Long followersCount = 0L;
+
+    @Column
+    private Long followingsCount = 0L;
+
     @Column()
     private ZonedDateTime createdDateTime;
 
@@ -52,58 +59,21 @@ public class UserEntity implements UserDetails {
     @Column
     private ZonedDateTime deletedDateTime;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setProfile(String profile) {
-        this.profile = profile;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCreatedDateTime(ZonedDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
-    }
-
-    public void setUpdatedDateTime(ZonedDateTime updatedDateTime) {
-        this.updatedDateTime = updatedDateTime;
-    }
-
-    public void setDeletedDateTime(ZonedDateTime deletedDateTime) {
-        this.deletedDateTime = deletedDateTime;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof UserEntity that)) return false;
-        return Objects.equals(userId, that.userId) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(profile, that.profile) && Objects.equals(description, that.description) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
+        return Objects.equals(userId, that.userId) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(profile, that.profile) && Objects.equals(description, that.description) && Objects.equals(followersCount, that.followersCount) && Objects.equals(followingsCount, that.followingsCount) && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime, that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, password, profile, description, createdDateTime, updatedDateTime, deletedDateTime);
+        return Objects.hash(userId, username, password, profile, description, followersCount, followingsCount, createdDateTime, updatedDateTime, deletedDateTime);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
     }
 
     /*

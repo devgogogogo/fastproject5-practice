@@ -51,6 +51,22 @@ public class UserController {
         return ResponseEntity.ok(posts);
     }
 
+    //팔로우
+    @PostMapping("/{username}/follows")
+    public ResponseEntity<User> follow(@PathVariable String username, Authentication authentication) {
+        User user = userService.follow(username, (UserEntity)authentication.getPrincipal());
+        return ResponseEntity.ok(user);
+    }
+
+    //팔로우 취소
+    @DeleteMapping("/{username}/follows")
+    public ResponseEntity<User> unFollow(@PathVariable String username, Authentication authentication) {
+        User user = userService.unFollow(username, (UserEntity)authentication.getPrincipal());
+        return ResponseEntity.ok(user);
+    }
+
+
+
     @PatchMapping("/{username}") //회원 수정
     public ResponseEntity<User> getUser(
             @PathVariable String username,
@@ -75,4 +91,6 @@ public class UserController {
         UserAuthenticationResponse response = userService.authenticate(userLoginRequestBody.username(), userLoginRequestBody.password());
         return ResponseEntity.ok(response);
     }
+
+
 }
