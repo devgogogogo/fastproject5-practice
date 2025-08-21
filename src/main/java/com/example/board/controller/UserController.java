@@ -46,33 +46,44 @@ public class UserController {
 
     //특정유저의 게시물
     @GetMapping("/{username}/posts")
-    public ResponseEntity<List<Post>> getPostByUsername(@PathVariable String username) {
-        List<Post> posts = postService.getPostByUsername(username);
+    public ResponseEntity<List<Post>> getPostByUsername(@PathVariable String username, Authentication authentication) {
+        List<Post> posts = postService.getPostByUsername(username, (UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(posts);
     }
 
     //팔로우
     @PostMapping("/{username}/follows")
     public ResponseEntity<User> follow(@PathVariable String username, Authentication authentication) {
-        User user = userService.follow(username, (UserEntity)authentication.getPrincipal());
+        User user = userService.follow(username, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(user);
     }
 
     //팔로우 취소
     @DeleteMapping("/{username}/follows")
     public ResponseEntity<User> unFollow(@PathVariable String username, Authentication authentication) {
-        User user = userService.unFollow(username, (UserEntity)authentication.getPrincipal());
+        User user = userService.unFollow(username, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(user);
     }
 
+    //
+    @GetMapping("/{username}/followers") //누군가의 팔로워 조회 목록
+    public ResponseEntity<List<User>> getFollowersByUser(@PathVariable String username) {
+        List<User> followers = userService.getFollowersByUser(username);
+        return ResponseEntity.ok(followers);
+    }
 
+    @GetMapping("/{username}/followings") //누군가의 팔로잉 조회 목록
+    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username) {
+        List<User> followings = userService.getFollowingsByUser(username);
+        return ResponseEntity.ok(followings);
+    }
 
     @PatchMapping("/{username}") //회원 수정
     public ResponseEntity<User> getUser(
             @PathVariable String username,
             @RequestBody UserPatchRequestBody requestBody,
             Authentication authentication) {
-        User user = userService.updateUser(username,requestBody,(UserEntity)authentication.getPrincipal());
+        User user = userService.updateUser(username, requestBody, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(user);
     }
 

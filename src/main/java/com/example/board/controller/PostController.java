@@ -22,14 +22,15 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping()
-    public ResponseEntity<List<Post>> getPosts() {
-        var posts = postService.getPosts();
+    public ResponseEntity<List<Post>> getPosts(Authentication authentication) {
+        var posts = postService.getPosts((UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId) {
-        Post post = postService.getPostByPostId(postId);
+    public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId,
+                                                Authentication authentication) {
+        Post post = postService.getPostByPostId(postId, (UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(post);
     }
 

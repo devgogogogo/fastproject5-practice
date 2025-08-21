@@ -142,4 +142,17 @@ public class UserService implements UserDetailsService {
     }
 
 
+    public List<User> getFollowersByUser(String username) {
+        UserEntity following = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+
+        List<FollowEntity> followEntities = followEntityRepository.findByFollower(following);
+        return followEntities.stream().map(follow -> User.from(follow.getFollower())).toList();
+    }
+
+    public List<User> getFollowingsByUser(String username) {
+        UserEntity follower = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+
+        List<FollowEntity> followEntities = followEntityRepository.findByFollower(follower);
+        return followEntities.stream().map(follow -> User.from(follow.getFollowing())).toList();
+    }
 }
