@@ -41,13 +41,21 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     public ResponseEntity<Post> updatePost(@PathVariable Long postId, @RequestBody PostPatchRequestBody postPatchRequestBody, Authentication authentication) {
-        Post post = postService.updatePost(postId, postPatchRequestBody,(UserEntity) authentication.getPrincipal());
+        Post post = postService.updatePost(postId, postPatchRequestBody, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(post);
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId, Authentication authentication) {
-        postService.deletePost(postId,(UserEntity) authentication.getPrincipal());
+        postService.deletePost(postId, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.noContent().build();
+    }
+
+
+    //좋아요
+    @PostMapping("/{postId}/likes")
+    public ResponseEntity<Post> toggleLike(@PathVariable Long postId, Authentication authentication) {
+        Post post = postService.toggleLike(postId, (UserEntity) authentication.getPrincipal());
+        return ResponseEntity.ok(post);
     }
 }
