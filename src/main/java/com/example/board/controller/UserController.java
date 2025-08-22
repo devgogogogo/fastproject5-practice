@@ -32,15 +32,15 @@ public class UserController {
 
     //유저 전체조회
     @GetMapping()
-    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query) {
-        List<User> userList = userService.getUsers(query);
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query,Authentication authentication) {
+        List<User> userList = userService.getUsers(query,(UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(userList);
     }
 
     //유저 단건조회
     @GetMapping("/{username}")
-    public ResponseEntity<User> getUser(@PathVariable String username) {
-        User user = userService.getUser(username);
+    public ResponseEntity<User> getUser(@PathVariable String username,Authentication authentication) {
+        User user = userService.getUser(username,(UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(user);
     }
 
@@ -67,14 +67,14 @@ public class UserController {
 
     //
     @GetMapping("/{username}/followers") //누군가의 팔로워 조회 목록
-    public ResponseEntity<List<User>> getFollowersByUser(@PathVariable String username) {
-        List<User> followers = userService.getFollowersByUser(username);
+    public ResponseEntity<List<User>> getFollowersByUser(@PathVariable String username,Authentication authentication) {
+        List<User> followers = userService.getFollowersByUser(username,(UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(followers);
     }
 
     @GetMapping("/{username}/followings") //누군가의 팔로잉 조회 목록
-    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username) {
-        List<User> followings = userService.getFollowingsByUser(username);
+    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username,Authentication authentication) {
+        List<User> followings = userService.getFollowingsByUser(username,(UserEntity)authentication.getPrincipal());
         return ResponseEntity.ok(followings);
     }
 

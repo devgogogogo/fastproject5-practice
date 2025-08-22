@@ -65,7 +65,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public List<User> getUsers(String query) {
+    public List<User> getUsers(String query,UserEntity currentUser) {
         List<UserEntity> userEntities;
 
         if (query != null && !query.isBlank()) { //쿼리가 값이 있는경우 --> 검색한다.
@@ -74,13 +74,19 @@ public class UserService implements UserDetailsService {
         } else {
             userEntities = userEntityRepository.findAll();//없으면 그냥 다 가져오기
         }
-        return userEntities.stream().map(User::from).toList();
+        return userEntities.stream().map(userEntity -> getUserWithFollowingStatus(userEntity,currentUser)).toList();
     }
 
-    public User getUser(String username) {
+    public User getUser(String username,UserEntity currentUser) {
         UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        return getUserWithFollowingStatus(userEntity, currentUser);
+    }
 
-        return User.from(userEntity);
+    //반복되는 작업을 메소드화 시킴
+    private User getUserWithFollowingStatus(UserEntity userEntity, UserEntity currentUser) {
+        boolean isFollowing = followEntityRepository.findByFollowerAndFollowing(currentUser, userEntity).isPresent();
+
+        return User.from(userEntity,isFollowing);
     }
 
     public User updateUser(String username, UserPatchRequestBody userPatchRequestBody, UserEntity currentUser) {
@@ -115,7 +121,7 @@ public class UserService implements UserDetailsService {
         userEntityRepository.save(currentUser);
 //        userEntityRepository.saveAll(List.of(following, currentUser)); 이렇게도 할 수 있음.
 
-        User user = User.from(following);
+        User user = User.from(following,true);
         return user;
     }
 
@@ -138,21 +144,27 @@ public class UserService implements UserDetailsService {
 
         userEntityRepository.saveAll(List.of(following, currentUser));
 
-        return User.from(following);
+        return User.from(following,false);
     }
 
 
-    public List<User> getFollowersByUser(String username) {
+    public List<User> getFollowersByUser(String username,UserEntity currentUser) {
         UserEntity following = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
 
         List<FollowEntity> followEntities = followEntityRepository.findByFollower(following);
-        return followEntities.stream().map(follow -> User.from(follow.getFollower())).toList();
+        return followEntities
+                .stream()
+                .map(follow->getUserWithFollowingStatus(follow.getFollower(),currentUser))
+                .toList();
     }
 
-    public List<User> getFollowingsByUser(String username) {
+    public List<User> getFollowingsByUser(String username,UserEntity currentUser) {
         UserEntity follower = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
 
         List<FollowEntity> followEntities = followEntityRepository.findByFollower(follower);
-        return followEntities.stream().map(follow -> User.from(follow.getFollowing())).toList();
+        return followEntities
+                .stream()
+                .map(follow -> getUserWithFollowingStatus(follow.getFollowing(),currentUser))
+                .toList();
     }
 }
