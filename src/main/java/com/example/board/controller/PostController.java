@@ -4,7 +4,9 @@ import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
+import com.example.board.model.user.LikedUser;
 import com.example.board.service.PostService;
+import com.example.board.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,18 +22,27 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
 
     @GetMapping()
     public ResponseEntity<List<Post>> getPosts(Authentication authentication) {
-        var posts = postService.getPosts((UserEntity)authentication.getPrincipal());
+        var posts = postService.getPosts((UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<Post> getPostByPostId(@PathVariable Long postId,
                                                 Authentication authentication) {
-        Post post = postService.getPostByPostId(postId, (UserEntity)authentication.getPrincipal());
+        Post post = postService.getPostByPostId(postId, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(post);
+    }
+
+    @GetMapping("/{postId}/liked-users")  //게시물에 좋아요 누른 유저들
+    public ResponseEntity<List<LikedUser>> getLikedUsersByPostId(@PathVariable Long postId,
+                                                                 Authentication authentication) {
+        List<LikedUser> likedUsers = userService.getLikedUsersByPostId(postId, (UserEntity) authentication.getPrincipal());
+
+        return ResponseEntity.ok(likedUsers);
     }
 
     @PostMapping

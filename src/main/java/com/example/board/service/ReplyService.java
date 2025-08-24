@@ -3,6 +3,7 @@ package com.example.board.service;
 import com.example.board.exception.post.PostNotFoundException;
 import com.example.board.exception.reply.ReplyNotFoundException;
 import com.example.board.exception.user.UserNotAllowedException;
+import com.example.board.exception.user.UserNotFoundException;
 import com.example.board.model.entity.PostEntity;
 import com.example.board.model.entity.ReplyEntity;
 import com.example.board.model.entity.UserEntity;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,11 +94,18 @@ public class ReplyService {
 
         //여기서는 postEntityRepository.save(postEntity) 를 안 해주고 끝났죠.
         //그런데도 실제로 DB에 반영됩니다.
-        //왜냐면:
-        //postEntity는 postEntityRepository.findById(...) 로 가져온 엔티티 → 이미 영속 상태(persistent state).
+        // 왜냐면: postEntity는 postEntityRepository.findById(...) 로 가져온 엔티티 → 이미 영속 상태(persistent state).
         //메서드 전체가 @Transactional 안에서 실행되고 있으니까,
         //트랜잭션이 끝날 때 JPA가 변경 감지(dirty checking) 를 해서
         //replies_count 값이 바뀌었으면 자동으로 UPDATE 쿼리를 날려줍니다.
         //즉, save() 안 해도 JPA가 알아서 반영해줘요.
+    }
+
+    public List<Reply> getRepliesByUser(String username) {
+
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        List<ReplyEntity> replyEntities = replyEntityRepository.findByUser(userEntity);
+
+        return replyEntities.stream().map(Reply::from).toList();
     }
 }

@@ -2,8 +2,10 @@ package com.example.board.controller;
 
 import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
+import com.example.board.model.reply.Reply;
 import com.example.board.model.user.*;
 import com.example.board.service.PostService;
+import com.example.board.service.ReplyService;
 import com.example.board.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,25 +31,26 @@ public class UserController {
      */
     private final UserService userService;
     private final PostService postService;
+    private final ReplyService replyService;
 
     //유저 전체조회
     @GetMapping()
-    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query,Authentication authentication) {
-        List<User> userList = userService.getUsers(query,(UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String query, Authentication authentication) {
+        List<User> userList = userService.getUsers(query, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(userList);
     }
 
     //유저 단건조회
     @GetMapping("/{username}")
-    public ResponseEntity<User> getUser(@PathVariable String username,Authentication authentication) {
-        User user = userService.getUser(username,(UserEntity)authentication.getPrincipal());
+    public ResponseEntity<User> getUser(@PathVariable String username, Authentication authentication) {
+        User user = userService.getUser(username, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(user);
     }
 
     //특정유저의 게시물
     @GetMapping("/{username}/posts")
     public ResponseEntity<List<Post>> getPostByUsername(@PathVariable String username, Authentication authentication) {
-        List<Post> posts = postService.getPostByUsername(username, (UserEntity)authentication.getPrincipal());
+        List<Post> posts = postService.getPostByUsername(username, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(posts);
     }
 
@@ -67,15 +70,28 @@ public class UserController {
 
     //
     @GetMapping("/{username}/followers") //누군가의 팔로워 조회 목록
-    public ResponseEntity<List<User>> getFollowersByUser(@PathVariable String username,Authentication authentication) {
-        List<User> followers = userService.getFollowersByUser(username,(UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<Follower>> getFollowersByUser(@PathVariable String username, Authentication authentication) {
+        List<Follower> followers = userService.getFollowersByUsername(username, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(followers);
     }
 
     @GetMapping("/{username}/followings") //누군가의 팔로잉 조회 목록
-    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username,Authentication authentication) {
-        List<User> followings = userService.getFollowingsByUser(username,(UserEntity)authentication.getPrincipal());
+    public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username, Authentication authentication) {
+        List<User> followings = userService.getFollowingsByUser(username, (UserEntity) authentication.getPrincipal());
         return ResponseEntity.ok(followings);
+    }
+
+    @GetMapping("/{username}/replies")
+    public ResponseEntity<List<Reply>> getRepliesByUser(@PathVariable String username, Authentication authentication) {
+
+        List<Reply> replies = replyService.getRepliesByUser(username);
+        return ResponseEntity.ok(replies);
+    }
+
+    @GetMapping("/{username}/liked-users") //누군가의 팔로잉 조회 목록
+    public ResponseEntity<List<LikedUser>> getLikedUsersByUser(@PathVariable String username, Authentication authentication) {
+        List<LikedUser> likedUsers  =userService.getLikedUsersByUser(username, (UserEntity) authentication.getPrincipal());
+        return ResponseEntity.ok(likedUsers);
     }
 
     @PatchMapping("/{username}") //회원 수정
